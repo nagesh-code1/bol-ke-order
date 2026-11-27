@@ -1,0 +1,22 @@
+{
+  "_note": "Fictional demo customers. Phone numbers are placeholders.",
+  "customers": [
+    {"id": "c_sharma", "name": "Sharma Aunty", "phone": "+91-90000-00001", "language": "hi",
+     "usual": [{"item_id": "atta_aashirvaad_5kg", "qty": 1}, {"item_id": "sugar_1kg", "qty": 2}, {"item_id": "oil_fortune_1l", "qty": 1}, {"item_id": "dal_toor_1kg", "qty": 1}, {"item_id": "tea_tata_250g", "qty": 1}],
+     "history": [{"item_id": "oil_fortune_1l", "qty": 1}, {"item_id": "biscuit_parleg", "qty": 2}],
+     "credit_balance": 0},
+    {"id": "c_ramesh", "name": "Ramesh Bhaiya", "phone": "+91-90000-00002", "language": "hi",
+     "usual": [{"item_id": "milk_amul_500ml", "qty": 2}, {"item_id": "bread_400g", "qty": 1}, {"item_id": "eggs_6", "qty": 1}],
+     "history": [{"item_id": "maggi_4pack", "qty": 1}],
+     "credit_balance": 450},
+    {"id": "c_lakshmi", "name": "Lakshmi Amma", "phone": "+91-90000-00003", "language": "ta",
+     "usual": [{"item_id": "rice_sona_1kg", "qty": 5}, {"item_id": "dal_toor_1kg", "qty": 1}, {"item_id": "coffee_bru_100g", "qty": 1}],
+     "history": [{"item_id": "oil_saffola_1l", "qty": 1}],
+     "credit_balance": 0},
+    {"id": "c_imran", "name": "Imran", "phone": "+91-90000-00004", "language": "hi",
+     "usual": [], "history": [], "credit_balance": 120},
+    {"id": "c_priya", "name": "Priya", "phone": "+91-90000-00005", "language": "en",
+     "usual": [{"item_id": "paneer_200g", "qty": 1}, {"item_id": "curd_amul_400g", "qty": 1}],
+     "history": [], "credit_balance": 0}
+  ]
+}

@@ -1,0 +1,612 @@
+{
+ "_note": "Demo rate list for a sample kirana shop. Prices are illustrative, not real MRP.",
+ "categories": {
+  "atta": {
+   "en": "atta",
+   "hi": "आटा",
+   "ta": "மாவு",
+   "aliases": [
+    "atta",
+    "aata",
+    "gehu ka atta",
+    "flour"
+   ]
+  },
+  "rice": {
+   "en": "rice",
+   "hi": "चावल",
+   "ta": "அரிசி",
+   "aliases": [
+    "chawal",
+    "rice",
+    "arisi",
+    "akki"
+   ]
+  },
+  "oil": {
+   "en": "oil",
+   "hi": "तेल",
+   "ta": "எண்ணெய்",
+   "aliases": [
+    "tel",
+    "oil",
+    "ennai",
+    "cooking oil"
+   ]
+  },
+  "dal": {
+   "en": "dal",
+   "hi": "दाल",
+   "ta": "பருப்பு",
+   "aliases": [
+    "dal",
+    "daal",
+    "paruppu"
+   ]
+  },
+  "butter": {
+   "en": "butter",
+   "hi": "मक्खन",
+   "ta": "வெண்ணெய்",
+   "aliases": [
+    "butter",
+    "makhan",
+    "makkhan",
+    "venna"
+   ]
+  },
+  "biscuit": {
+   "en": "biscuit",
+   "hi": "बिस्किट",
+   "ta": "பிஸ்கட்",
+   "aliases": [
+    "biscuit",
+    "biskut",
+    "biscuits"
+   ]
+  }
+ },
+ "items": [
+  {
+   "id": "atta_aashirvaad_5kg",
+   "category": "atta",
+   "name": "Aashirvaad Atta",
+   "pack": "5 kg",
+   "price": 285,
+   "in_stock": true,
+   "aliases": [
+    "aashirvaad",
+    "ashirwad",
+    "aashirvaad atta",
+    "ashirwad atta"
+   ]
+  },
+  {
+   "id": "atta_loose_1kg",
+   "category": "atta",
+   "name": "Loose Atta",
+   "pack": "1 kg",
+   "price": 42,
+   "in_stock": true,
+   "aliases": [
+    "khula atta",
+    "loose atta",
+    "chakki atta"
+   ]
+  },
+  {
+   "id": "rice_basmati_1kg",
+   "category": "rice",
+   "name": "Basmati Rice",
+   "pack": "1 kg",
+   "price": 120,
+   "in_stock": true,
+   "aliases": [
+    "basmati",
+    "basmati chawal",
+    "basmati rice"
+   ]
+  },
+  {
+   "id": "rice_sona_1kg",
+   "category": "rice",
+   "name": "Sona Masoori Rice",
+   "pack": "1 kg",
+   "price": 62,
+   "in_stock": true,
+   "aliases": [
+    "sona masoori",
+    "sona masuri",
+    "ponni"
+   ]
+  },
+  {
+   "id": "sugar_1kg",
+   "category": "sugar",
+   "name": "Sugar",
+   "pack": "1 kg",
+   "price": 46,
+   "in_stock": true,
+   "aliases": [
+    "cheeni",
+    "chini",
+    "shakkar",
+    "sugar",
+    "sakkarai"
+   ]
+  },
+  {
+   "id": "salt_tata_1kg",
+   "category": "salt",
+   "name": "Tata Salt",
+   "pack": "1 kg",
+   "price": 28,
+   "in_stock": true,
+   "aliases": [
+    "namak",
+    "salt",
+    "tata namak",
+    "tata salt",
+    "uppu"
+   ]
+  },
+  {
+   "id": "oil_fortune_1l",
+   "category": "oil",
+   "name": "Fortune Sunflower Oil",
+   "pack": "1 L",
+   "price": 165,
+   "in_stock": true,
+   "aliases": [
+    "fortune",
+    "fortune tel",
+    "fortune oil",
+    "sunflower oil"
+   ]
+  },
+  {
+   "id": "oil_saffola_1l",
+   "category": "oil",
+   "name": "Saffola Gold Oil",
+   "pack": "1 L",
+   "price": 195,
+   "in_stock": true,
+   "aliases": [
+    "saffola",
+    "saffola tel",
+    "saffola oil"
+   ]
+  },
+  {
+   "id": "oil_mustard_1l",
+   "category": "oil",
+   "name": "Mustard Oil",
+   "pack": "1 L",
+   "price": 175,
+   "in_stock": true,
+   "aliases": [
+    "sarso tel",
+    "sarson ka tel",
+    "sarson tel",
+    "mustard oil",
+    "kachi ghani"
+   ]
+  },
+  {
+   "id": "ghee_amul_500ml",
+   "category": "ghee",
+   "name": "Amul Ghee",
+   "pack": "500 ml",
+   "price": 310,
+   "in_stock": true,
+   "aliases": [
+    "ghee",
+    "desi ghee",
+    "amul ghee",
+    "nei"
+   ]
+  },
+  {
+   "id": "dal_toor_1kg",
+   "category": "dal",
+   "name": "Toor Dal",
+   "pack": "1 kg",
+   "price": 160,
+   "in_stock": true,
+   "aliases": [
+    "toor dal",
+    "toor",
+    "arhar dal",
+    "arhar",
+    "tuvar",
+    "thuvaram paruppu"
+   ]
+  },
+  {
+   "id": "dal_moong_1kg",
+   "category": "dal",
+   "name": "Moong Dal",
+   "pack": "1 kg",
+   "price": 135,
+   "in_stock": true,
+   "aliases": [
+    "moong dal",
+    "moong",
+    "mung dal",
+    "pasi paruppu"
+   ]
+  },
+  {
+   "id": "dal_chana_1kg",
+   "category": "dal",
+   "name": "Chana Dal",
+   "pack": "1 kg",
+   "price": 95,
+   "in_stock": true,
+   "aliases": [
+    "chana dal",
+    "kadalai paruppu"
+   ]
+  },
+  {
+   "id": "dal_masoor_1kg",
+   "category": "dal",
+   "name": "Masoor Dal",
+   "pack": "1 kg",
+   "price": 110,
+   "in_stock": true,
+   "aliases": [
+    "masoor",
+    "masoor dal",
+    "lal dal"
+   ]
+  },
+  {
+   "id": "milk_amul_500ml",
+   "category": "milk",
+   "name": "Amul Taaza Milk",
+   "pack": "500 ml",
+   "price": 28,
+   "in_stock": true,
+   "aliases": [
+    "doodh",
+    "dudh",
+    "milk",
+    "amul doodh",
+    "paal"
+   ]
+  },
+  {
+   "id": "curd_amul_400g",
+   "category": "curd",
+   "name": "Amul Dahi",
+   "pack": "400 g",
+   "price": 35,
+   "in_stock": true,
+   "aliases": [
+    "dahi",
+    "curd",
+    "thayir"
+   ]
+  },
+  {
+   "id": "paneer_200g",
+   "category": "paneer",
+   "name": "Paneer",
+   "pack": "200 g",
+   "price": 90,
+   "in_stock": true,
+   "aliases": [
+    "paneer"
+   ]
+  },
+  {
+   "id": "butter_amul_100g",
+   "category": "butter",
+   "name": "Amul Butter",
+   "pack": "100 g",
+   "price": 58,
+   "in_stock": false,
+   "aliases": [
+    "amul butter",
+    "amul makhan"
+   ]
+  },
+  {
+   "id": "butter_md_100g",
+   "category": "butter",
+   "name": "Mother Dairy Butter",
+   "pack": "100 g",
+   "price": 55,
+   "in_stock": true,
+   "aliases": [
+    "mother dairy butter",
+    "mother dairy makhan"
+   ]
+  },
+  {
+   "id": "bread_400g",
+   "category": "bread",
+   "name": "Bread",
+   "pack": "400 g",
+   "price": 45,
+   "in_stock": true,
+   "aliases": [
+    "bread",
+    "double roti",
+    "pav"
+   ]
+  },
+  {
+   "id": "eggs_6",
+   "category": "eggs",
+   "name": "Eggs",
+   "pack": "6 pcs",
+   "price": 42,
+   "in_stock": true,
+   "aliases": [
+    "ande",
+    "anda",
+    "egg",
+    "eggs",
+    "muttai"
+   ]
+  },
+  {
+   "id": "biscuit_parleg",
+   "category": "biscuit",
+   "name": "Parle-G",
+   "pack": "1 pack",
+   "price": 10,
+   "in_stock": true,
+   "aliases": [
+    "parle g",
+    "parle-g",
+    "parleg",
+    "parle"
+   ]
+  },
+  {
+   "id": "biscuit_goodday",
+   "category": "biscuit",
+   "name": "Good Day",
+   "pack": "1 pack",
+   "price": 30,
+   "in_stock": true,
+   "aliases": [
+    "good day",
+    "goodday"
+   ]
+  },
+  {
+   "id": "maggi_4pack",
+   "category": "noodles",
+   "name": "Maggi Noodles",
+   "pack": "4-pack",
+   "price": 56,
+   "in_stock": true,
+   "aliases": [
+    "maggi",
+    "noodles"
+   ]
+  },
+  {
+   "id": "tea_tata_250g",
+   "category": "tea",
+   "name": "Tata Tea Premium",
+   "pack": "250 g",
+   "price": 140,
+   "in_stock": true,
+   "aliases": [
+    "chai patti",
+    "chai",
+    "tea",
+    "tata tea",
+    "patti"
+   ]
+  },
+  {
+   "id": "coffee_bru_100g",
+   "category": "coffee",
+   "name": "Bru Coffee",
+   "pack": "100 g",
+   "price": 180,
+   "in_stock": true,
+   "aliases": [
+    "coffee",
+    "bru",
+    "kaapi",
+    "coffee powder"
+   ]
+  },
+  {
+   "id": "haldi_100g",
+   "category": "spice",
+   "name": "Haldi Powder",
+   "pack": "100 g",
+   "price": 32,
+   "in_stock": true,
+   "aliases": [
+    "haldi",
+    "turmeric",
+    "manjal"
+   ]
+  },
+  {
+   "id": "mirch_100g",
+   "category": "spice",
+   "name": "Red Chilli Powder",
+   "pack": "100 g",
+   "price": 40,
+   "in_stock": true,
+   "aliases": [
+    "lal mirch",
+    "mirchi powder",
+    "mirch powder",
+    "chilli powder",
+    "milagai thool"
+   ]
+  },
+  {
+   "id": "jeera_100g",
+   "category": "spice",
+   "name": "Jeera",
+   "pack": "100 g",
+   "price": 60,
+   "in_stock": true,
+   "aliases": [
+    "jeera",
+    "zeera",
+    "cumin",
+    "seeragam"
+   ]
+  },
+  {
+   "id": "garam_masala_100g",
+   "category": "spice",
+   "name": "Garam Masala",
+   "pack": "100 g",
+   "price": 75,
+   "in_stock": true,
+   "aliases": [
+    "garam masala"
+   ]
+  },
+  {
+   "id": "onion_1kg",
+   "category": "veg",
+   "name": "Onion",
+   "pack": "1 kg",
+   "price": 40,
+   "in_stock": true,
+   "aliases": [
+    "pyaaz",
+    "pyaz",
+    "pyaj",
+    "kanda",
+    "onion",
+    "vengayam"
+   ]
+  },
+  {
+   "id": "potato_1kg",
+   "category": "veg",
+   "name": "Potato",
+   "pack": "1 kg",
+   "price": 30,
+   "in_stock": true,
+   "aliases": [
+    "aloo",
+    "alu",
+    "potato",
+    "urulai"
+   ]
+  },
+  {
+   "id": "tomato_1kg",
+   "category": "veg",
+   "name": "Tomato",
+   "pack": "1 kg",
+   "price": 36,
+   "in_stock": true,
+   "aliases": [
+    "tamatar",
+    "tomato",
+    "thakkali"
+   ]
+  },
+  {
+   "id": "soap_lux",
+   "category": "soap",
+   "name": "Lux Soap",
+   "pack": "1 bar",
+   "price": 38,
+   "in_stock": true,
+   "aliases": [
+    "sabun",
+    "soap",
+    "lux",
+    "nahane ka sabun"
+   ]
+  },
+  {
+   "id": "detergent_surf_1kg",
+   "category": "detergent",
+   "name": "Surf Excel",
+   "pack": "1 kg",
+   "price": 140,
+   "in_stock": true,
+   "aliases": [
+    "surf",
+    "surf excel",
+    "kapde dhone ka powder",
+    "detergent",
+    "washing powder"
+   ]
+  },
+  {
+   "id": "dishwash_vim",
+   "category": "dishwash",
+   "name": "Vim Bar",
+   "pack": "1 bar",
+   "price": 20,
+   "in_stock": true,
+   "aliases": [
+    "vim",
+    "bartan sabun",
+    "dishwash"
+   ]
+  },
+  {
+   "id": "toothpaste_colgate",
+   "category": "toothpaste",
+   "name": "Colgate Toothpaste",
+   "pack": "100 g",
+   "price": 58,
+   "in_stock": true,
+   "aliases": [
+    "colgate",
+    "toothpaste",
+    "manjan"
+   ]
+  },
+  {
+   "id": "shampoo_clinic_sachet",
+   "category": "shampoo",
+   "name": "Clinic Plus Sachet",
+   "pack": "1 sachet",
+   "price": 2,
+   "in_stock": true,
+   "aliases": [
+    "shampoo",
+    "clinic plus",
+    "shampoo pouch"
+   ]
+  },
+  {
+   "id": "matchbox",
+   "category": "matchbox",
+   "name": "Matchbox",
+   "pack": "1 box",
+   "price": 2,
+   "in_stock": true,
+   "aliases": [
+    "machis",
+    "matchbox",
+    "tikli"
+   ]
+  },
+  {
+   "id": "agarbatti",
+   "category": "pooja",
+   "name": "Agarbatti",
+   "pack": "1 pack",
+   "price": 30,
+   "in_stock": true,
+   "aliases": [
+    "agarbatti",
+    "dhoop"
+   ]
+  }
+ ]
+}

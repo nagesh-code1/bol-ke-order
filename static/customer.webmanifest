@@ -1,0 +1,15 @@
+{
+  "name": "Bol Ke Order",
+  "short_name": "Bol Ke Order",
+  "description": "Order from your kirana shop by voice or by tapping photos.",
+  "start_url": "/order",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fff6e0",
+  "theme_color": "#ff9a1f",
+  "icons": [
+    {"src": "/static/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+    {"src": "/static/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ]
+}

@@ -1,0 +1,16 @@
+# runtime data: real orders, customer voice transcripts, uploaded photos, generated replies
+data/shop.db
+data/shop.db-*
+data/replies/
+data/photos/
+data/*.tmp
+
+# secrets and local settings
+.env
+.claude/
+
+# python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/

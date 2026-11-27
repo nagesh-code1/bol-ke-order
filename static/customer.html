@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bol Ke Order · Order by voice</title>
+<meta name="theme-color" content="#ff9a1f">
+<link rel="manifest" href="/static/customer.webmanifest">
+<link rel="apple-touch-icon" href="/static/icon-192.png">
+<link rel="stylesheet" href="/static/common.css?v=4">
+<script src="/static/items.js?v=4"></script>
+<style>
+  header { background: var(--saffron); color: var(--ink); }
+  header h1 { color: #fff; }
+  main { max-width: 560px; }
+  .who { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
+  .who label { font-weight: 800; min-width: 4.5em; }
+  .who select { flex: 1; font-weight: 700; box-shadow: var(--shadow-sm); }
+  .mic-wrap { text-align: center; padding: 26px 12px 20px; background: var(--green); }
+  .mic-wrap .hint { color: #fff; font-weight: 800; font-size: 1.1rem; margin-top: 18px; text-shadow: 2px 2px 0 var(--ink); }
+  /* the mic is a big round sticker you can't miss */
+  .mic { width: 168px; height: 168px; border-radius: 50%; font-size: 3.6rem; background: var(--saffron);
+         border: 4px solid var(--ink); box-shadow: 7px 7px 0 var(--ink); }
+  .mic:hover { transform: translate(-2px, -2px); box-shadow: 9px 9px 0 var(--ink); }
+  .mic:active { transform: translate(6px, 6px); box-shadow: 0 0 0 var(--ink); }
+  .mic.recording { background: var(--red); color: #fff; animation: thump 1s steps(2) infinite; }
+  @keyframes thump { 50% { transform: translate(3px, 3px); box-shadow: 4px 4px 0 var(--ink); } }
+  @media (prefers-reduced-motion: reduce) { .mic.recording { animation: none; } }
+  .status { text-align: center; font-weight: 800; min-height: 1.5em; margin: 4px 0 16px; }
+  .order-head { border-bottom: var(--border-thin); padding-bottom: 8px; margin-bottom: 4px; }
+  .order-head b { font-family: var(--font-display); }
+  .line { display: flex; justify-content: space-between; padding: 8px 0; border-top: 2px dashed var(--ink); font-weight: 600; }
+  .line:first-of-type { border-top: 0; }
+  .order-total { border-top: 3px double var(--ink); padding-top: 8px; margin-top: 4px; font-size: 1.3rem; }
+  /* the shop's reply is a speech bubble */
+  .reply { position: relative; background: var(--green-soft); border: var(--border); border-radius: 14px;
+           box-shadow: var(--shadow-sm); padding: 12px 14px; margin: 22px 0 4px; font-size: 1.08rem; font-weight: 600; }
+  .reply::before { content: ""; position: absolute; top: -16px; left: 26px; border: 8px solid transparent;
+                   border-bottom-color: var(--ink); border-width: 0 12px 16px 12px; }
+  .reply::after { content: ""; position: absolute; top: -10px; left: 30px;
+                  border-style: solid; border-color: transparent transparent var(--green-soft) transparent; border-width: 0 8px 11px 8px; }
+  textarea { width: 100%; min-height: 76px; }
+
+  /* tap to order */
+  .tap h2 { font-family: var(--font-display); font-size: 1.15rem; margin: 0 0 10px; text-transform: uppercase; }
+  .tap input[type=search] { width: 100%; margin-bottom: 12px; font-weight: 600; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .item { border: var(--border-thin); border-radius: var(--radius); background: #fff; overflow: hidden;
+          display: flex; flex-direction: column; box-shadow: var(--shadow-sm); }
+  .item.out { opacity: .55; }
+  .item.in-cart { box-shadow: 4px 4px 0 var(--green); border-color: var(--green); }
+  .item .info { padding: 6px 8px 0; flex: 1; }
+  .item .name { font-weight: 800; font-size: .9rem; line-height: 1.2; }
+  .item .meta { font-size: .78rem; color: var(--muted); }
+  .item .price { font-family: var(--font-display); font-size: 1rem; }
+  .qty { display: flex; align-items: center; justify-content: space-between; gap: 4px; padding: 8px; }
+  .qty button { padding: 4px 0; width: 38px; font-size: 1.1rem; box-shadow: 2px 2px 0 var(--ink); }
+  .qty .add { width: 100%; background: var(--saffron); }
+  .qty b { font-family: var(--font-display); font-size: 1.1rem; min-width: 1.5em; text-align: center; }
+  .cart-bar { position: fixed; left: 10px; right: 10px; bottom: 10px; z-index: 20; display: flex; gap: 10px;
+              align-items: center; justify-content: space-between; background: var(--ink); color: #fff;
+              border: var(--border); border-radius: var(--radius); box-shadow: 5px 5px 0 var(--saffron);
+              padding: 10px 12px; max-width: 540px; margin: 0 auto; }
+  .cart-bar[hidden] { display: none; }
+  .cart-bar b { font-family: var(--font-display); }
+  .cart-bar button { background: var(--saffron); }
+  body.has-cart main { padding-bottom: 96px; }
+
+  /* the shop's question as photo choices */
+  .choose { margin-top: 10px; background: var(--saffron-soft); border: var(--border-thin); border-radius: var(--radius); padding: 10px; }
+  .choose .q { font-weight: 800; margin-bottom: 8px; }
+  .choices { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .choice { padding: 0; overflow: hidden; display: flex; flex-direction: column; background: #fff; text-align: center; }
+  .choice span.label { padding: 6px; font-size: .85rem; }
+  @media (max-width: 420px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  details summary { cursor: pointer; font-weight: 800; }
+</style>
+</head>
+<body>
+<header>
+  <div class="grow"><h1>Bol Ke Order</h1><div class="sub">Bolo, order ho jayega · Speak your order</div></div>
+</header>
+<main>
+  <div id="error" class="error" hidden></div>
+  <div class="who">
+    <label for="customer" class="small muted">You are</label>
+    <select id="customer"></select>
+  </div>
+  <div class="who">
+    <label for="lang" class="small muted">I speak</label>
+    <select id="lang">
+      <option value="">Auto-detect</option>
+      <option value="hi">हिन्दी / Hinglish</option>
+      <option value="kn">ಕನ್ನಡ Kannada</option>
+      <option value="ta">தமிழ் Tamil</option>
+      <option value="te">తెలుగు Telugu</option>
+      <option value="mr">मराठी Marathi</option>
+      <option value="bn">বাংলা Bengali</option>
+      <option value="ml">മലയാളം Malayalam</option>
+      <option value="en">English</option>
+    </select>
+  </div>
+  <div class="card mic-wrap">
+    <button id="mic" class="mic" aria-label="Tap to record your order">🎙️</button>
+    <div class="hint" id="hint">Tap and speak your order · बोलिए · ಹೇಳಿ · பேசுங்கள்</div>
+  </div>
+  <div class="status" id="status" aria-live="polite"></div>
+  <section id="orders" aria-live="polite"></section>
+  <section class="card tap" aria-labelledby="tap-title">
+    <h2 id="tap-title">🛒 Or tap to order · फोटो से चुनें</h2>
+    <input type="search" id="find" placeholder="Search: atta, tel, Parle-G…" aria-label="Search items">
+    <div class="grid" id="grid"></div>
+  </section>
+  <details class="card">
+    <summary>Type instead</summary>
+    <p class="small muted">Example: “ek kilo cheeni aur do Parle-G” or “monthly wala saaman bhej do”</p>
+    <textarea id="typed" maxlength="2000" aria-label="Type your order"></textarea>
+    <div class="row" style="margin-top:8px"><button class="primary" id="send-typed">Send order</button>
+      <button class="ghost" id="usual">Same as my usual list</button></div>
+  </details>
+</main>
+<div class="cart-bar" id="cart-bar" hidden>
+  <span><b id="cart-count">0</b> items · <b id="cart-total">₹0</b></span>
+  <button type="button" id="send-cart">Send order →</button>
+</div>
+<script>
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const rupees = (n) => "₹" + Number(n || 0).toLocaleString("en-IN", { maximumFractionDigits: 2 });
+const STATUS_TEXT = { new: "Shop is checking your order", needs_answer: "Shop is checking your order",
+  accepted: "Accepted · being packed", packed: "Packed · on the way", delivered: "Delivered ✓", rejected: "Shop could not take this order" };
+let recorder = null, chunks = [], heard = {}, lastHash = "";
+let catalog = [], cart = {};   // cart: item_id -> qty (replaced, never mutated)
+const itemById = (id) => catalog.find((i) => i.id === id);
+
+async function api(path, options = {}) {
+  const res = await fetch(path, options);
+  const body = await res.json().catch(() => ({ ok: false, error: "Server sent an unreadable reply" }));
+  if (!body.ok) throw new Error(body.error || "Something went wrong");
+  return body.data;
+}
+const customerId = () => document.getElementById("customer").value;
+const setStatus = (t) => { document.getElementById("status").textContent = t; };
+function showError(message) { const box = document.getElementById("error"); box.textContent = message || ""; box.hidden = !message; }
+
+async function sendAudio(blob) {
+  setStatus("Sending your voice note… आपका ऑर्डर पढ़ रहे हैं…");
+  try {
+    const lang = document.getElementById("lang").value;
+    await api(`/api/voice-order?customer_id=${encodeURIComponent(customerId())}${lang ? "&lang=" + lang : ""}`, {
+      method: "POST", body: blob, headers: { "x-filename": "note.webm" } });
+    setStatus("Order sent to the shop ✓"); showError("");
+  } catch (e) { setStatus(""); showError(e.message); }
+  loadOrders(true);
+}
+
+async function toggleMic() {
+  const mic = document.getElementById("mic");
+  if (recorder && recorder.state === "recording") { recorder.stop(); return; }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    recorder = new MediaRecorder(stream);
+    chunks = [];
+    recorder.ondataavailable = (e) => e.data.size && chunks.push(e.data);
+    recorder.onstop = () => {
+      stream.getTracks().forEach((t) => t.stop());
+      mic.classList.remove("recording"); mic.textContent = "🎙️";
+      document.getElementById("hint").textContent = "Tap and speak your order · बोलिए · ಹೇಳಿ · பேசுங்கள்";
+      sendAudio(new Blob(chunks, { type: recorder.mimeType || "audio/webm" }));
+    };
+    recorder.start();
+    mic.classList.add("recording"); mic.textContent = "■";
+    document.getElementById("hint").textContent = "Listening… tap again when done";
+    showError("");
+  } catch (e) { showError("Microphone not available: " + e.message); }
+}
+
+async function sendText(text) {
+  if (!text.trim()) return;
+  setStatus("Sending your order…");
+  try {
+    await api("/api/text-order", { method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ customer_id: customerId(), text }) });
+    setStatus("Order sent to the shop ✓"); document.getElementById("typed").value = ""; showError("");
+  } catch (e) { setStatus(""); showError(e.message); }
+  loadOrders(true);
+}
+
+// ---- tap to order ----
+function itemCard(item) {
+  const qty = cart[item.id] || 0;
+  const control = !item.in_stock ? `<div class="qty"><span class="small" style="font-weight:800">Out of stock</span></div>`
+    : qty ? `<div class="qty"><button type="button" data-cart="${esc(item.id)}" data-step="-1" aria-label="One less ${esc(item.name)}">−</button>
+             <b>${qty}</b><button type="button" data-cart="${esc(item.id)}" data-step="1" aria-label="One more ${esc(item.name)}">+</button></div>`
+    : `<div class="qty"><button type="button" class="add" data-cart="${esc(item.id)}" data-step="1">Add</button></div>`;
+  return `<div class="item ${item.in_stock ? "" : "out"} ${qty ? "in-cart" : ""}">${bkoItemPicture(item, "lg")}
+    <div class="info"><div class="name">${esc(item.name)}</div><div class="meta">${esc(item.pack)}</div>
+    <div class="price">${rupees(item.price)}</div></div>${control}</div>`;
+}
+
+function renderGrid() {
+  const q = document.getElementById("find").value.trim().toLowerCase();
+  const shown = catalog.filter((i) => !q || i.name.toLowerCase().includes(q) || i.category.includes(q)
+    || (i.aliases || []).some((a) => a.includes(q)));
+  document.getElementById("grid").innerHTML = shown.length ? shown.map(itemCard).join("")
+    : `<div class="empty" style="grid-column:1/-1">Nothing found. Try speaking your order instead.</div>`;
+  const picks = Object.entries(cart);
+  const total = picks.reduce((sum, [id, qty]) => sum + (itemById(id)?.price || 0) * qty, 0);
+  document.getElementById("cart-count").textContent = picks.reduce((n, [, qty]) => n + qty, 0);
+  document.getElementById("cart-total").textContent = rupees(total);
+  document.getElementById("cart-bar").hidden = !picks.length;
+  document.body.classList.toggle("has-cart", picks.length > 0);
+}
+
+function changeCart(id, step) {
+  const qty = Math.max(0, Math.min(50, (cart[id] || 0) + step));
+  const { [id]: _removed, ...rest } = cart;
+  cart = qty ? { ...rest, [id]: qty } : rest;
+  renderGrid();
+}
+
+async function sendCart() {
+  const items = Object.entries(cart).map(([item_id, qty]) => ({ item_id, qty }));
+  if (!items.length) return;
+  const btn = document.getElementById("send-cart");
+  btn.disabled = true;
+  try {
+    await api("/api/tap-order", { method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ customer_id: customerId(), items }) });
+    cart = {}; renderGrid(); setStatus("Order sent to the shop ✓"); showError("");
+    document.getElementById("orders").scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (e) { showError(e.message); }
+  finally { btn.disabled = false; loadOrders(true); }
+}
+
+// ---- the shop's question, answered by tapping a photo ----
+function choiceCards(o, l, index) {
+  const open = ["new", "needs_answer"].includes(o.status);
+  const ids = l.status === "ask" ? (l.options || []) : (l.status === "out_of_stock" && l.substitute_id ? [l.substitute_id] : []);
+  if (!open || !ids.length) return "";
+  const question = l.status === "ask" ? (l.question || "Which one?") : `${l.name} is out of stock. Is this okay?`;
+  return `<div class="choose"><div class="q">${esc(question)}</div><div class="choices">
+    ${ids.map((id) => { const it = itemById(id); return `<button type="button" class="choice" data-pick-order="${o.id}" data-pick-index="${index}" data-pick-item="${esc(id)}">
+      ${bkoItemPicture(it, "lg")}<span class="label"><b>${esc(it ? it.name : id)}</b><br>${it ? rupees(it.price) : ""}</span></button>`; }).join("")}
+  </div></div>`;
+}
+
+async function pickChoice(btn) {
+  btn.disabled = true;
+  try {
+    await api(`/api/orders/${btn.dataset.pickOrder}/customer-choose`, { method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ customer_id: customerId(), index: Number(btn.dataset.pickIndex), item_id: btn.dataset.pickItem }) });
+    setStatus("Got it ✓"); showError("");
+  } catch (e) { showError(e.message); }
+  loadOrders(true);
+}
+
+function orderCard(o) {
+  const lines = o.slip.lines.map((l, i) => `<div class="line"><span>${esc(l.name || l.said)} × ${l.qty}</span>
+      <span class="money">${l.status === "ok" ? rupees(l.amount) : "?"}</span></div>${choiceCards(o, l, i)}`).join("");
+  const reply = o.reply_text ? `<div class="reply">🏪 ${esc(o.reply_text)}
+      ${o.reply_audio ? `<audio controls preload="auto" data-reply="${o.id}-${esc(o.reply_audio)}" src="/api/replies/${esc(o.reply_audio)}"></audio>` : ""}</div>` : "";
+  return `<article class="card"><div class="spread order-head"><b>Order #${o.id}</b><span class="chip ${o.status}">${esc(STATUS_TEXT[o.status] || o.status)}</span></div>
+    ${lines}<div class="spread order-total"><span class="small" style="font-weight:800">${o.slip.credit ? "📒 Udhaar" : ""}</span>
+    <span class="money">${rupees(o.slip.total)}</span></div>${reply}</article>`;
+}
+
+async function loadOrders(force = false) {
+  if (!customerId()) return;
+  try {
+    const orders = (await api(`/api/orders?customer_id=${encodeURIComponent(customerId())}`)).slice(0, 5);
+    const hash = JSON.stringify(orders);
+    if (!force && hash === lastHash) return;
+    lastHash = hash;
+    document.getElementById("orders").innerHTML = orders.map(orderCard).join("");
+    document.querySelectorAll("audio[data-reply]").forEach((a) => {   // play each new shop reply once
+      if (heard[a.dataset.reply]) return;
+      heard[a.dataset.reply] = true;
+      a.play().catch(() => {});  // browsers may block autoplay; the player stays visible
+    });
+  } catch (e) { showError(e.message); }
+}
+
+(async () => {
+  try {
+    const customers = await api("/api/customers");
+    document.getElementById("customer").innerHTML = customers.map((c) => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("");
+  } catch (e) { showError(e.message); }
+  document.getElementById("customer").addEventListener("change", () => { heard = {}; lastHash = ""; loadOrders(true); });
+  const langBox = document.getElementById("lang");
+  langBox.value = localStorage.getItem("bko-lang") || "";
+  langBox.addEventListener("change", () => localStorage.setItem("bko-lang", langBox.value));
+  document.getElementById("mic").addEventListener("click", toggleMic);
+  document.getElementById("send-typed").addEventListener("click", () => sendText(document.getElementById("typed").value));
+  document.getElementById("usual").addEventListener("click", () => sendText("monthly wala saaman bhej do, same as usual"));
+  document.getElementById("find").addEventListener("input", renderGrid);
+  document.getElementById("send-cart").addEventListener("click", sendCart);
+  document.addEventListener("click", (event) => {
+    const step = event.target.closest("button[data-cart]");
+    if (step) { changeCart(step.dataset.cart, Number(step.dataset.step)); return; }
+    const pick = event.target.closest("button[data-pick-item]");
+    if (pick) pickChoice(pick);
+  });
+  try { catalog = await api("/api/catalog"); } catch (e) { showError(e.message); }
+  renderGrid();
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
+  // Mark existing replies as heard so old messages don't replay on page load.
+  await loadOrders(true);
+  document.querySelectorAll("audio[data-reply]").forEach((a) => { a.pause(); a.currentTime = 0; });
+  setInterval(loadOrders, 3000);
+})();
+</script>
+</body>
+</html>

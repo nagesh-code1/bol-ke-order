@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bol Ke Order · Shop</title>
+<meta name="theme-color" content="#0b7a4b">
+<link rel="manifest" href="/static/shop.webmanifest">
+<link rel="apple-touch-icon" href="/static/icon-192.png">
+<link rel="stylesheet" href="/static/common.css?v=4">
+<script src="/static/items.js?v=4"></script>
+<style>
+  /* today's numbers: four painted boards, colour = meaning */
+  .tiles { display: grid; grid-template-columns: 1.2fr 1fr 1.2fr 1fr; gap: 14px; margin-bottom: 22px; }
+  .tile { border: var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 12px 14px; background: var(--card); }
+  .tile span { font-weight: 800; font-size: .78rem; text-transform: uppercase; letter-spacing: .5px; }
+  .tile b { display: block; font-family: var(--font-display); font-size: 1.9rem; line-height: 1.1; margin-top: 4px; }
+  .tile.waiting { background: var(--saffron); }
+  .tile.sales { background: var(--green); color: #fff; }
+  .tile.udhaar { background: var(--red-soft); }
+  .tabs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; padding: 2px 6px 6px 2px; }
+  .tabs button { white-space: nowrap; background: var(--paper-deep); }
+  .tabs button[aria-selected="true"] { background: var(--ink); color: var(--saffron); box-shadow: 3px 3px 0 var(--saffron); }
+
+  /* each order = a printed bill receipt */
+  .receipt { padding: 0; overflow: hidden; }
+  .receipt-head { background: var(--paper-deep); border-bottom: var(--border); padding: 10px 16px; }
+  .receipt-head b { font-family: var(--font-display); font-size: 1.05rem; }
+  .receipt-body { padding: 4px 16px 14px; }
+  .receipt.needs_answer .receipt-head, .receipt.new .receipt-head { background: var(--saffron-soft); }
+  .receipt.accepted .receipt-head, .receipt.packed .receipt-head { background: var(--blue-soft); }
+  .receipt.delivered .receipt-head { background: var(--green-soft); }
+  .receipt.rejected { opacity: .7; }
+  .transcript { border: var(--border-thin); border-left-width: 8px; border-radius: var(--radius); background: #fff;
+                padding: 8px 10px; font-size: .95rem; margin: 12px 0 6px; }
+  .line { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; padding: 10px 0; border-top: 2px dashed var(--ink); }
+  .line:first-child { border-top: 0; }
+  .line b { font-weight: 800; }
+  .said { font-size: .8rem; color: var(--muted); }
+  .fix { grid-column: 1 / -1; background: var(--saffron-soft); border: var(--border-thin); border-radius: var(--radius);
+         padding: 10px 12px; margin-top: 6px; }
+  .fix .q { font-weight: 800; margin-bottom: 8px; }
+  .totals { border-top: 3px double var(--ink); margin-top: 6px; padding-top: 10px; }
+  .total { font-size: 1.6rem; }
+  .actions { margin-top: 14px; }
+  .actions .primary { font-size: 1.05rem; padding: 12px 20px; }
+  .reply { background: var(--green-soft); border: var(--border-thin); border-radius: var(--radius); padding: 10px 12px; margin-top: 14px; }
+  .pack { background: #fff; border: var(--border-thin); border-radius: var(--radius); padding: 10px 12px; margin-top: 12px; }
+  .pack label { display: flex; gap: 10px; align-items: center; padding: 5px 0; font-weight: 600; }
+  .pack input { width: 24px; height: 24px; accent-color: var(--green); }
+  .add-item { border-top: 2px dashed var(--ink); padding-top: 10px; }
+
+  /* khata = a ledger page */
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: .8rem; text-transform: uppercase; letter-spacing: .5px; padding: 8px 6px; border-bottom: var(--border); }
+  td { padding: 12px 6px; border-bottom: 2px dashed var(--ink); }
+  td.owes { color: var(--red); }
+
+  /* spoken summary */
+  .say-bar { background: var(--paper-deep); }
+  .say-out { margin-top: 12px; background: var(--green-soft); border: var(--border-thin); border-radius: var(--radius);
+             padding: 10px 12px; font-weight: 600; }
+
+  /* stock & prices */
+  .stock-add { background: var(--saffron-soft); }
+  .stock-add input[name=name] { flex: 1 1 12em; }
+  .cat-head { font-family: var(--font-display); text-transform: uppercase; font-size: .85rem; letter-spacing: .5px;
+              background: var(--ink); color: var(--saffron); padding: 6px 10px; }
+  .stock-table td { vertical-align: middle; }
+  .stock-table input { width: 6.5em; font-weight: 800; }
+  .stock-table tr.out td:first-child b { text-decoration: line-through; color: var(--muted); }
+  .in-btn { background: var(--green-soft); min-width: 8.5em; }
+  .out-btn { background: var(--red-soft); color: var(--red); min-width: 8.5em; }
+  .pack-count { float: right; font-weight: 800; }
+  .stock-name { display: flex; gap: 10px; align-items: center; }
+  .photo-btn { display: inline-block; font-size: .78rem; font-weight: 800; cursor: pointer; margin-top: 4px;
+               border: var(--border-thin); border-radius: 4px; padding: 1px 6px; background: var(--paper-deep); }
+  .photo-btn input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  .photo-btn:focus-within { outline: 3px dashed var(--blue); outline-offset: 2px; }
+  .opt { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; }
+  @media (max-width: 600px) {
+    .stock-table td { padding: 10px 3px; }
+    .stock-table input { width: 4.4em; padding: 7px 6px; }
+    .in-btn, .out-btn { min-width: 0; padding: 8px; font-size: .8rem; white-space: nowrap; }
+    .stock-name { gap: 6px; }
+  }
+  .opt .pic { border-width: 1.5px; }
+  @media (max-width: 700px) { .tiles { grid-template-columns: repeat(2, 1fr); } .tile b { font-size: 1.5rem; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="grow">
+    <h1>Bol Ke Order</h1>
+    <div class="sub">Shop dashboard · voice-note orders</div>
+  </div>
+  <a href="/order" target="_blank" style="color:#fff" class="small">Customer page ↗</a>
+</header>
+<main>
+  <div id="error" class="error" hidden></div>
+  <section class="tiles" aria-label="Today">
+    <div class="tile"><span>Orders today</span><b id="t-orders">–</b></div>
+    <div class="tile waiting"><span>Waiting for you</span><b id="t-pending">–</b></div>
+    <div class="tile sales"><span>Sales (accepted)</span><b id="t-sales">–</b></div>
+    <div class="tile udhaar"><span>Udhaar given</span><b id="t-credit">–</b></div>
+  </section>
+  <section class="card say-bar" aria-label="Spoken summary">
+    <div class="row">
+      <button class="primary" id="say-summary" type="button">🔊 Hear today's summary</button>
+      <select id="say-lang" aria-label="Summary language">
+        <option value="hi">हिंदी</option><option value="kn">ಕನ್ನಡ</option><option value="en">English</option>
+      </select>
+    </div>
+    <div id="say-out" class="say-out" hidden></div>
+  </section>
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-tab="open" aria-selected="true">New &amp; questions</button>
+    <button role="tab" data-tab="accepted">To pack</button>
+    <button role="tab" data-tab="packed">Out for delivery</button>
+    <button role="tab" data-tab="done">Done</button>
+    <button role="tab" data-tab="khata">Khata (credit)</button>
+    <button role="tab" data-tab="stock">Stock &amp; prices</button>
+  </nav>
+  <section id="list" aria-live="polite"></section>
+</main>
+<script>
+const TABS = { open: ["new", "needs_answer"], accepted: ["accepted"], packed: ["packed"], done: ["delivered", "rejected"] };
+let state = { tab: "open", orders: [], customers: [], catalog: [], lastHash: "", busy: false };
+
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const rupees = (n) => "₹" + Number(n || 0).toLocaleString("en-IN", { maximumFractionDigits: 2 });
+const time = (iso) => new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+const customerName = (id) => (state.customers.find((c) => c.id === id) || {}).name || "Walk-in";
+const itemById = (id) => state.catalog.find((i) => i.id === id);
+const itemName = (id) => (itemById(id) || {}).name || id;
+
+async function api(path, options = {}) {
+  const res = await fetch(path, { headers: { "content-type": "application/json" }, ...options });
+  const body = await res.json().catch(() => ({ ok: false, error: "Server sent an unreadable reply" }));
+  if (!body.ok) throw new Error(body.error || "Something went wrong");
+  return body.data;
+}
+function showError(message) {
+  const box = document.getElementById("error");
+  box.textContent = message || "";
+  box.hidden = !message;
+}
+
+function lineFix(order, line, index) {
+  if (line.status === "ok") return "";
+  const options = (line.options || []).map((id) =>
+    `<button class="warn opt" data-act="choose" data-order="${order.id}" data-index="${index}" data-item="${esc(id)}">${bkoItemPicture(itemById(id), "sm")}${esc(itemName(id))}</button>`).join("");
+  const sub = line.substitute_id
+    ? `<button class="warn opt" data-act="choose" data-order="${order.id}" data-index="${index}" data-item="${esc(line.substitute_id)}">${bkoItemPicture(itemById(line.substitute_id), "sm")}Use ${esc(itemName(line.substitute_id))}</button>` : "";
+  const picker = line.status === "unknown"
+    ? `<select data-act="pick" data-order="${order.id}" data-index="${index}" aria-label="Pick item">
+         <option value="">Pick from rate list…</option>
+         ${state.catalog.filter((i) => i.in_stock).map((i) => `<option value="${esc(i.id)}">${esc(i.name)} (${esc(i.pack)}) ${rupees(i.price)}</option>`).join("")}
+       </select>` : "";
+  const addNew = line.status === "unknown"
+    ? `<form class="row add-item" data-order="${order.id}" data-index="${index}" style="margin-top:8px">
+         <span class="small"><b>Not in your list?</b> Add it:</span>
+         <input name="name" required maxlength="60" placeholder="Item name" value="${esc(String(line.said).slice(0, 60))}" aria-label="New item name">
+         <input name="pack" maxlength="30" placeholder="Pack (1 pc)" style="width:7em" aria-label="Pack size">
+         <input name="price" required type="number" min="1" step="0.5" placeholder="₹ price" style="width:6em" aria-label="Price in rupees">
+         <button class="warn" type="submit">Add &amp; use</button>
+       </form>` : "";
+  return `<div class="fix">
+      <div class="q">${esc(line.question || line.note)}</div>
+      <div class="row">${options}${sub}${picker}
+        <button class="ghost" data-act="remove" data-order="${order.id}" data-index="${index}">Remove</button></div>
+      ${addNew}
+    </div>`;
+}
+
+function orderCard(order) {
+  const slip = order.slip;
+  const lines = slip.lines.map((line, i) => `
+    <div class="line">
+      <div><b>${esc(line.name || line.said)}</b> <span class="muted">${line.pack ? "· " + esc(line.pack) : ""} × ${line.qty}</span>
+        <div class="said">“${esc(line.said)}” ${line.note ? "· " + esc(line.note) : ""}</div></div>
+      <div class="money">${line.status === "ok" ? rupees(line.amount) : `<span class="chip ${line.status}">${line.status.replace(/_/g, " ")}</span>`}</div>
+      ${lineFix(order, line, i)}
+    </div>`).join("");
+  const open = ["new", "needs_answer"].includes(order.status);
+  const packed = order.packed || [];
+  const packList = order.status === "accepted" ? `<div class="pack"><b>Packing checklist</b>
+      <span class="pack-count">${packed.length} / ${slip.lines.length} packed</span>
+      ${slip.lines.map((l, i) => `<label><input type="checkbox" data-pack-order="${order.id}" data-pack-index="${i}" ${packed.includes(i) ? "checked" : ""}> ${esc(l.name)} × ${l.qty}</label>`).join("")}</div>` : "";
+  const actions = [
+    open && slip.needs_owner ? `<button class="warn" data-act="ask" data-order="${order.id}">Ask customer (voice)</button>` : "",
+    open ? `<button class="primary" data-act="accept" data-order="${order.id}" ${slip.needs_owner ? "disabled title='Answer the questions first'" : ""}>Accept &amp; reply</button>` : "",
+    order.status === "accepted" ? `<button class="primary" data-act="status" data-status="packed" data-order="${order.id}">Packed ✓</button>` : "",
+    order.status === "packed" ? `<button class="primary" data-act="status" data-status="delivered" data-order="${order.id}">Delivered ✓</button>` : "",
+    open ? `<button class="danger" data-act="status" data-status="rejected" data-order="${order.id}">Reject</button>` : "",
+  ].join("");
+  const reply = order.reply_text ? `<div class="reply"><b>Sent to customer:</b> ${esc(order.reply_text)}
+      ${order.reply_audio ? `<audio controls preload="none" src="/api/replies/${esc(order.reply_audio)}"></audio>` : ""}</div>` : "";
+  return `<article class="card receipt ${order.status}">
+    <div class="receipt-head spread"><div><b>#${order.id} · ${esc(customerName(order.customer_id))}</b>
+      <span class="small"> ${time(order.created_at)}${slip.language ? " · " + esc(slip.language.toUpperCase()) : ""}</span></div>
+      <span class="chip ${order.status}">${order.status.replace(/_/g, " ")}</span></div>
+    <div class="receipt-body">
+    <div class="transcript">🎙️ ${esc(slip.transcript)}</div>
+    ${lines}
+    <div class="spread totals"><span class="small" style="font-weight:700">
+      ${slip.delivery ? "🚚 " + esc(slip.delivery) : ""} ${slip.credit ? " · 📒 Udhaar" + (slip.pay_by ? " (pay by " + esc(slip.pay_by) + ")" : "") : ""}</span>
+      <span class="total money">${rupees(slip.total)}</span></div>
+    ${packList}
+    <div class="actions row">${actions}</div>
+    ${reply}
+    </div>
+  </article>`;
+}
+
+function khata() {
+  const rows = state.customers.map((c) => `<tr><td><b>${esc(c.name)}</b><div class="muted small">${esc(c.phone || "")}</div></td>
+      <td class="money ${c.credit_balance > 0 ? "owes" : ""}">${rupees(c.credit_balance)}</td></tr>`).join("");
+  return `<div class="card"><table><thead><tr><th>Customer</th><th>Owes the shop</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+function stockPage() {
+  const byCategory = {};
+  state.catalog.forEach((item) => { (byCategory[item.category] = byCategory[item.category] || []).push(item); });
+  const groups = Object.keys(byCategory).sort().map((cat) => `
+    <tr><td colspan="3" class="cat-head">${esc(cat)}</td></tr>
+    ${byCategory[cat].map((i) => `<tr class="${i.in_stock ? "" : "out"}">
+      <td><div class="stock-name">${bkoItemPicture(i, "sm")}<div><b>${esc(i.name)}</b><div class="small muted">${esc(i.pack)}</div>
+        <label class="photo-btn">📷 ${i.photo ? "Change photo" : "Add photo"}<input type="file" accept="image/jpeg,image/png,image/webp"
+          capture="environment" data-photo-item="${esc(i.id)}" aria-label="Photo for ${esc(i.name)}"></label></div></div></td>
+      <td><label class="small" style="font-weight:800">₹ <input type="number" min="1" step="0.5" value="${i.price}"
+          data-price-item="${esc(i.id)}" aria-label="Price of ${esc(i.name)}"></label></td>
+      <td style="text-align:right"><button type="button" class="${i.in_stock ? "in-btn" : "out-btn"}" data-act="stock"
+          data-item="${esc(i.id)}" data-instock="${i.in_stock}" aria-pressed="${i.in_stock}">${i.in_stock ? "✓ In stock" : "✗ Out of stock"}</button></td>
+    </tr>`).join("")}`).join("");
+  return `<form class="card row stock-add">
+      <b>Add a new item:</b>
+      <input name="name" required maxlength="60" placeholder="Item name (e.g. Goli Soda)" aria-label="New item name">
+      <input name="pack" maxlength="30" placeholder="Pack (1 bottle)" style="width:9em" aria-label="Pack size">
+      <input name="price" required type="number" min="1" step="0.5" placeholder="₹ price" style="width:7em" aria-label="Price in rupees">
+      <button class="warn" type="submit">Add item</button>
+    </form>
+    <div class="card"><p class="small muted" style="margin-top:0">Change a price and press Enter (or tap outside) to save. New orders use it straight away.</p>
+      <table class="stock-table"><tbody>${groups}</tbody></table></div>`;
+}
+
+function render() {
+  const list = document.getElementById("list");
+  if (state.tab === "khata") { list.innerHTML = khata(); return; }
+  if (state.tab === "stock") { list.innerHTML = stockPage(); return; }
+  const shown = state.orders.filter((o) => TABS[state.tab].includes(o.status));
+  list.innerHTML = shown.length ? shown.map(orderCard).join("") : `<div class="empty">No orders here yet.</div>`;
+}
+
+async function refresh(force = false) {
+  if (state.busy) return;
+  try {
+    const [orders, customers, summary] = await Promise.all([api("/api/orders"), api("/api/customers"), api("/api/summary")]);
+    document.getElementById("t-orders").textContent = summary.orders;
+    document.getElementById("t-pending").textContent = summary.pending;
+    document.getElementById("t-sales").textContent = rupees(summary.sales);
+    document.getElementById("t-credit").textContent = rupees(summary.credit_given);
+    const hash = JSON.stringify([orders, customers]);
+    state.orders = orders; state.customers = customers;
+    const typing = document.activeElement && document.activeElement.closest("#list input, #list select");
+    if (typing && !force) return;  // don't wipe what the owner is typing; redraw on the next tick
+    if (force || hash !== state.lastHash) { state.lastHash = hash; render(); }
+    showError("");
+  } catch (e) { showError("Can't reach the shop server: " + e.message); }
+}
+
+async function act(fn) {
+  state.busy = true;
+  try { await fn(); showError(""); } catch (e) { showError(e.message); }
+  finally { state.busy = false; await refresh(true); }
+}
+
+document.addEventListener("click", (event) => {
+  const tab = event.target.closest("[data-tab]");
+  if (tab) {
+    document.querySelectorAll("[data-tab]").forEach((b) => b.setAttribute("aria-selected", String(b === tab)));
+    state.tab = tab.dataset.tab; render(); return;
+  }
+  if (event.target.closest("#say-summary")) { saySummary(); return; }
+  const btn = event.target.closest("button[data-act]");
+  if (!btn) return;
+  const id = btn.dataset.order, index = Number(btn.dataset.index);
+  btn.disabled = true;
+  const calls = {
+    stock: async () => {
+      await api(`/api/catalog/${encodeURIComponent(btn.dataset.item)}`, { method: "PATCH",
+        body: JSON.stringify({ in_stock: btn.dataset.instock !== "true" }) });
+      state.catalog = await api("/api/catalog");
+    },
+    choose: () => api(`/api/orders/${id}/choose`, { method: "POST", body: JSON.stringify({ index, item_id: btn.dataset.item }) }),
+    remove: () => api(`/api/orders/${id}/remove`, { method: "POST", body: JSON.stringify({ index }) }),
+    ask: () => api(`/api/orders/${id}/ask`, { method: "POST" }),
+    accept: () => api(`/api/orders/${id}/accept`, { method: "POST" }),
+    status: () => api(`/api/orders/${id}/status`, { method: "POST", body: JSON.stringify({ status: btn.dataset.status }) }),
+  };
+  act(calls[btn.dataset.act]);
+});
+async function saySummary() {
+  const btn = document.getElementById("say-summary");
+  const out = document.getElementById("say-out");
+  btn.disabled = true; btn.textContent = "🔊 Preparing…";
+  try {
+    const data = await api("/api/summary/speak", { method: "POST",
+      body: JSON.stringify({ language: document.getElementById("say-lang").value }) });
+    out.hidden = false;
+    out.innerHTML = esc(data.text) + (data.audio
+      ? `<audio controls autoplay src="/api/replies/${esc(data.audio)}"></audio>`
+      : `<div class="small">(Voice unavailable right now: showing text only.)</div>`);
+    showError("");
+  } catch (e) { showError(e.message); }
+  finally { btn.disabled = false; btn.textContent = "🔊 Hear today's summary"; }
+}
+
+document.addEventListener("submit", (event) => {
+  const stockForm = event.target.closest("form.stock-add");
+  if (stockForm) {
+    event.preventDefault();
+    const data = new FormData(stockForm);
+    act(async () => {
+      await api("/api/catalog", { method: "POST", body: JSON.stringify({
+        name: data.get("name"), pack: data.get("pack") || "1 pc", price: Number(data.get("price")) }) });
+      state.catalog = await api("/api/catalog");
+    });
+    return;
+  }
+  const form = event.target.closest("form.add-item");
+  if (!form) return;
+  event.preventDefault();
+  const data = new FormData(form);
+  act(async () => {
+    await api(`/api/orders/${form.dataset.order}/add-item`, { method: "POST", body: JSON.stringify({
+      index: Number(form.dataset.index), name: data.get("name"), pack: data.get("pack") || "1 pc",
+      price: Number(data.get("price")) }) });
+    state.catalog = await api("/api/catalog");
+  });
+});
+document.addEventListener("change", (event) => {
+  const pick = event.target.closest("select[data-act=pick]");
+  if (pick && pick.value) {
+    act(() => api(`/api/orders/${pick.dataset.order}/choose`, { method: "POST",
+      body: JSON.stringify({ index: Number(pick.dataset.index), item_id: pick.value }) }));
+  }
+  const box = event.target.closest("input[data-pack-order]");
+  if (box) {
+    act(() => api(`/api/orders/${box.dataset.packOrder}/pack`, { method: "POST",
+      body: JSON.stringify({ index: Number(box.dataset.packIndex), done: box.checked }) }));
+  }
+  const photo = event.target.closest("input[data-photo-item]");
+  if (photo && photo.files && photo.files[0]) {
+    const file = photo.files[0];
+    if (file.size > 3 * 1024 * 1024) { showError("Photo is too big (max 3 MB). Try a smaller one."); return; }
+    act(async () => {
+      const res = await fetch(`/api/catalog/${encodeURIComponent(photo.dataset.photoItem)}/photo`, { method: "POST", body: file });
+      const body = await res.json().catch(() => ({ ok: false, error: "Upload failed" }));
+      if (!body.ok) throw new Error(body.error || "Upload failed");
+      state.catalog = await api("/api/catalog");
+    });
+    return;
+  }
+  const price = event.target.closest("input[data-price-item]");
+  if (price) {
+    const value = Number(price.value);
+    if (!(value > 0)) { showError("Price must be more than ₹0"); return; }
+    act(async () => {
+      await api(`/api/catalog/${encodeURIComponent(price.dataset.priceItem)}`, { method: "PATCH",
+        body: JSON.stringify({ price: value }) });
+      state.catalog = await api("/api/catalog");
+    });
+  }
+});
+
+(async () => {
+  try { state.catalog = await api("/api/catalog"); } catch (e) { showError(e.message); }
+  await refresh(true);
+  setInterval(refresh, 3000);
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
+})();
+</script>
+</body>
+</html>
