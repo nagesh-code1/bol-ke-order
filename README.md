@@ -7,6 +7,8 @@ digital khata automatically.
 
 Built for the Scaler × Wispr Flow hackathon "India Runs on Voice" (Small business track).
 
+📄 **Showcase:** [features, expected vs achieved results, measured numbers and bugs fixed](docs/Bol_Ke_Order_Features_Expected_vs_Achieved.pdf) (PDF, 6 pages).
+
 ## What it does
 
 | For the customer (`/order`) | For the shop owner (`/`) |
